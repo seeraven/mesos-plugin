@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.15</version>
+    <version>3.26</version>
     <relativePath />
   </parent>
 
@@ -92,7 +92,7 @@
   </pluginRepositories>
 
   <properties>
-    <jenkins.version>2.7.3</jenkins.version>
+    <jenkins.version>2.138.2</jenkins.version>
     <java.level>8</java.level>
     <findbugs.failOnError>false</findbugs.failOnError>
     <mesos.version>1.0.0</mesos.version>

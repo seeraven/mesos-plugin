@@ -28,3 +28,6 @@ deploy.sh
 
 # Mac
 .DS_Store
+
+# Maven cache
+.m2/

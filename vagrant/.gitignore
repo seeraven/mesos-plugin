@@ -1,0 +1,7 @@
+# Backup files
+*~
+
+# Local configuration
+apt/apt.conf.d
+apt/certs
+apt/sources.list
