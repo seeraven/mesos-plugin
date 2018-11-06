@@ -42,15 +42,17 @@ public abstract class Mesos {
   public static class SlaveRequest {
     JenkinsSlave slave;
     final double cpus;
+    final int gpus;
     final int mem;
     final double diskNeeded;
     final String role;
     final MesosSlaveInfo slaveInfo;
 
-    public SlaveRequest(JenkinsSlave slave, double cpus, int mem, String role,
+    public SlaveRequest(JenkinsSlave slave, double cpus, int gpus, int mem, String role,
         MesosSlaveInfo slaveInfo, double diskNeeded) {
       this.slave = slave;
       this.cpus = cpus;
+      this.gpus = gpus;
       this.mem = mem;
       this.role = role;
       this.slaveInfo = slaveInfo;

@@ -18,6 +18,10 @@
         <f:textbox clazz="required" default="0.1"/>
     </f:entry>
 
+    <f:entry title="${%Jenkins Slave GPUs}" field="slaveGpus">
+        <f:number clazz="required number" default="0"/>
+    </f:entry>
+
     <f:entry title="${%Jenkins Slave Memory in MB}" field="slaveMem">
         <f:number clazz="required positive-number" default="512"/>
     </f:entry>
@@ -54,6 +58,12 @@
     </f:entry>
     <f:entry title="${%Mesos Offer Selection Attributes}" field="slaveAttributes">
         <f:textbox/>
+    </f:entry>
+    <f:entry title="${%Use a Login Shell}" description="${%Use a login shell starting the JNLP agent?}" field="loginShell">
+        <f:radio name="loginShell" value="true" checked="${instance.loginShell == true}" id="loginShell.true"/>
+        <st:nbsp/>${%Yes}
+        <f:radio name="loginShell" value="false" checked="${instance == null || instance.loginShell == false}" id="loginShell.false"/>
+        <st:nbsp/>${%No}
     </f:entry>
     <f:entry title="${%Additional Jenkins Slave JVM arguments}" field="jvmArgs">
         <f:textbox default="-Xms16m -XX:+UseConcMarkSweepGC -Djava.net.preferIPv4Stack=true"/>

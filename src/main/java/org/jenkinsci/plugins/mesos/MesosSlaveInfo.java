@@ -80,6 +80,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
   private static final String CUSTOM_IMAGE_SEPARATOR = ":";
   private static final Pattern CUSTOM_IMAGE_FROM_LABEL_PATTERN = Pattern.compile(CUSTOM_IMAGE_SEPARATOR + "([\\w\\.\\-/:]+[\\w])");
   private final double slaveCpus;
+  private final int slaveGpus;
   private final double diskNeeded; //MB
   private final int slaveMem; // MB.
   private final double executorCpus;
@@ -88,6 +89,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
   private final int executorMem; // MB.
   private final String remoteFSRoot;
   private final int idleTerminationMinutes;
+  private final boolean loginShell;
   private final String jvmArgs;
   private final String jnlpArgs;
   private final boolean defaultSlave;
@@ -114,6 +116,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
     MesosSlaveInfo that = (MesosSlaveInfo) o;
 
     if (Double.compare(that.slaveCpus, slaveCpus) != 0) return false;
+    if (slaveGpus != that.slaveGpus) return false;
     if (slaveMem != that.slaveMem) return false;
     if (Double.compare(that.executorCpus, executorCpus) != 0) return false;
     if (Double.compare(that.diskNeeded, diskNeeded) !=0 ) return false;
@@ -123,6 +126,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
     if (idleTerminationMinutes != that.idleTerminationMinutes) return false;
     if (remoteFSRoot != null ? !remoteFSRoot.equals(that.remoteFSRoot) : that.remoteFSRoot != null) return false;
     if (jvmArgs != null ? !jvmArgs.equals(that.jvmArgs) : that.jvmArgs != null) return false;
+    if (loginShell != that.loginShell) return false;
     if (jnlpArgs != null ? !jnlpArgs.equals(that.jnlpArgs) : that.jnlpArgs != null) return false;
     if (slaveAttributesString != null ? !slaveAttributesString.equals(that.slaveAttributesString) : that.slaveAttributesString != null)
       return false;
@@ -141,6 +145,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
     long temp;
     temp = Double.doubleToLongBits(slaveCpus);
     result = (int) (temp ^ (temp >>> 32));
+    result = 31 * result + slaveGpus;
     result = 31 * result + slaveMem;
     temp = Double.doubleToLongBits(executorCpus);
     result = 31 * result + (int) (temp ^ (temp >>> 32));
@@ -152,6 +157,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
     result = 31 * result + (remoteFSRoot != null ? remoteFSRoot.hashCode() : 0);
     result = 31 * result + idleTerminationMinutes;
     result = 31 * result + (jvmArgs != null ? jvmArgs.hashCode() : 0);
+    result = 31 * result + (loginShell ? 1231 : 1237);
     result = 31 * result + (jnlpArgs != null ? jnlpArgs.hashCode() : 0);
     result = 31 * result + (slaveAttributesString != null ? slaveAttributesString.hashCode() : 0);
     result = 31 * result + (containerInfo != null ? containerInfo.hashCode() : 0);
@@ -167,6 +173,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
       String labelString,
       Mode mode,
       String slaveCpus,
+      String slaveGpus,
       String slaveMem,
       String minExecutors,
       String maxExecutors,
@@ -176,6 +183,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
       String remoteFSRoot,
       String idleTerminationMinutes,
       String slaveAttributes,
+      boolean loginShell,
       String jvmArgs,
       String jnlpArgs,
       String defaultSlave,
@@ -188,6 +196,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
               Util.fixEmptyAndTrim(labelString),
               mode != null ? mode : Mode.NORMAL,
               Double.parseDouble(slaveCpus),
+              Integer.parseInt(slaveGpus),
               Integer.parseInt(slaveMem),
               Integer.parseInt(minExecutors),
               Integer.parseInt(maxExecutors),
@@ -197,6 +206,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
               StringUtils.isNotBlank(remoteFSRoot) ? remoteFSRoot.trim() : "jenkins",
               Integer.parseInt(idleTerminationMinutes),
               parseSlaveAttributes(slaveAttributes),
+              loginShell,
               StringUtils.isNotBlank(jvmArgs) ? cleanseJvmArgs(jvmArgs) : DEFAULT_JVM_ARGS,
               StringUtils.isNotBlank(jnlpArgs) ? jnlpArgs : "",
               Boolean.valueOf(defaultSlave),
@@ -209,6 +219,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
       String labelString,
       Mode mode,
       double slaveCpus,
+      int slaveGpus,
       int slaveMem,
       int minExecutors,
       int maxExecutors,
@@ -218,6 +229,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
       String remoteFSRoot,
       int idleTerminationMinutes,
       JSONObject slaveAttributes,
+      boolean loginShell,
       String jvmArgs,
       String jnlpArgs,
       Boolean defaultSlave,
@@ -228,6 +240,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
       this.labelString = labelString;
       this.mode = mode;
       this.slaveCpus = slaveCpus;
+      this.slaveGpus = slaveGpus;
       this.slaveMem = slaveMem;
       this.minExecutors = minExecutors < 1 ? 1 : minExecutors; // Ensure minExecutors is at least equal to 1
       this.maxExecutors = maxExecutors;
@@ -237,6 +250,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
       this.remoteFSRoot = remoteFSRoot;
       this.idleTerminationMinutes = idleTerminationMinutes;
       this.slaveAttributesString = slaveAttributes != null ? slaveAttributes.toString() : null;
+      this.loginShell = loginShell;
       this.jvmArgs = jvmArgs;
       this.jnlpArgs = jnlpArgs;
       this.defaultSlave = defaultSlave;
@@ -269,6 +283,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
               label,
               mode,
               slaveCpus,
+              slaveGpus,
               slaveMem,
               minExecutors,
               maxExecutors,
@@ -278,6 +293,7 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
               remoteFSRoot,
               idleTerminationMinutes,
               parseSlaveAttributes(slaveAttributesString),
+              loginShell,
               jvmArgs,
               jnlpArgs,
               defaultSlave,
@@ -311,6 +327,10 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
     return slaveCpus;
   }
 
+  public int getSlaveGpus() {
+    return slaveGpus;
+  }
+
   public int getSlaveMem() {
     return slaveMem;
   }
@@ -337,6 +357,10 @@ public class MesosSlaveInfo extends AbstractDescribableImpl<MesosSlaveInfo> {
 
   public JSONObject getSlaveAttributes() {
     return parseSlaveAttributes(slaveAttributesString);
+  }
+
+  public boolean isLoginShell() {
+    return loginShell;
   }
 
   public String getJvmArgs() {

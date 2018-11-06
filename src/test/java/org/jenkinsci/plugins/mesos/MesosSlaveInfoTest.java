@@ -74,24 +74,26 @@ public class MesosSlaveInfoTest {
                 new LinkedList<MesosSlaveInfo.NetworkInfo>()
         );
         return new MesosSlaveInfo(
-                label,
+                label,                                 // labelString,
                 Node.Mode.EXCLUSIVE,
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "500",
-                "1",
-                "",
-                "1",
-                "",
-                "",
-                "",
-                "false",
-                container,
-                new LinkedList<MesosSlaveInfo.URI>(),
-                new ArrayList<NodeProperty<?>>()
+                "1",                                   // slaveCpus,
+                "0",                                   // slaveGpus
+                "1",                                   // slaveMem,
+                "1",                                   // minExecutors,
+                "1",                                   // maxExecutors,
+                "1",                                   // executorCpus,
+                "500",                                 // diskNeeded
+                "1",                                   // executorMem,
+                "",                                    // remoteFSRoot,
+                "1",                                   // idleTerminationMinutes,
+                "",                                    // slaveAttributes,
+                true,                                  // loginShell,
+                "",                                    // jvmArgs,
+                "",                                    // jnlpArgs,
+                "false",                               // defaultSlave,
+                container,                             // containerInfo,
+                new LinkedList<MesosSlaveInfo.URI>(),  // additionalURIs
+                new ArrayList<NodeProperty<?>>()       // nodeProperties
         );
     }
 

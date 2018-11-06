@@ -491,6 +491,7 @@ public class JenkinsSchedulerTest {
                 "testLabelString",  // labelString,
                 Node.Mode.NORMAL,
                 "0.2",              // slaveCpus,
+                "0",                // slaveGpus
                 "512",              // slaveMem,
                 "1",                // minExecutors,
                 "2",                // maxExecutors,
@@ -500,6 +501,7 @@ public class JenkinsSchedulerTest {
                 "remoteFSRoot",     // remoteFSRoot,
                 "2",                // idleTerminationMinutes,
                 (String)null,       // slaveAttributes,
+                true,               // loginShell,
                 null,               // jvmArgs,
                 null,               // jnlpArgs,
                 null,               // defaultSlave,
@@ -508,7 +510,7 @@ public class JenkinsSchedulerTest {
                 null              // nodeProperties
                 );
         return new Mesos.SlaveRequest(
-            new Mesos.JenkinsSlave(TEST_JENKINS_SLAVE_NAME), 0.2d, TEST_JENKINS_SLAVE_MEM, "jenkins", mesosSlaveInfo, 500);
+            new Mesos.JenkinsSlave(TEST_JENKINS_SLAVE_NAME), 0.2d, 0, TEST_JENKINS_SLAVE_MEM, "jenkins", mesosSlaveInfo, 500);
     }
 
     private JenkinsScheduler.Request mockMesosRequest(
