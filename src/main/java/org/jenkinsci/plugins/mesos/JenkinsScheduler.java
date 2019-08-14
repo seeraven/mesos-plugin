@@ -92,6 +92,7 @@ public class JenkinsScheduler implements Scheduler {
     private static final Object IGNORE = new Object();
 
     private static final OfferQueue offerQueue = new OfferQueue();
+    private volatile boolean offerProcessingThreadContinue = true;
     private Thread offerProcessingThread = null;
     private volatile FrameworkID frameworkId;
 
@@ -182,6 +183,14 @@ public class JenkinsScheduler implements Scheduler {
     public synchronized void stop() {
         try {
             SUPERVISOR_LOCK.lock();
+            if (offerProcessingThread != null) {
+                if (offerProcessingThread.isAlive()) {
+                    LOGGER.info("Stopping Offer Processing Thread.");
+                    offerProcessingThreadContinue = false;
+                    offerProcessingThread.join();
+                    LOGGER.info("Offer Processing Thread stopped.");
+                }
+            }
             if (driver != null) {
                 LOGGER.info("Stopping Mesos driver.");
                 driver.stop();
@@ -439,12 +448,13 @@ public class JenkinsScheduler implements Scheduler {
         String threadName = "mesos-offer-processor-" + getFrameworkId();
         LOGGER.info("Starting offer processing thread: " + threadName);
 
+        offerProcessingThreadContinue = true;
         offerProcessingThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 LOGGER.info("Started offer processing thread: " + threadName);
                 try {
-                    while (true) {
+                    while (offerProcessingThreadContinue) {
                         processOffers();
 
                         // By periodically doing this check we guard against the case that reviveOffers()
@@ -454,8 +464,9 @@ public class JenkinsScheduler implements Scheduler {
                         }
                     }
                 } catch (Throwable t) {
-                    LOGGER.severe("Offer processing thread failed with exception: " + ExceptionUtils.getStackTrace(t));
+                    LOGGER.severe("Offer processing thread " + threadName + " failed with exception: " + ExceptionUtils.getStackTrace(t));
                 }
+                LOGGER.info("Finished offer processing thread: " + threadName);
             }
         }, threadName);
         offerProcessingThread.start();
