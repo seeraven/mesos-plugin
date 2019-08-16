@@ -187,8 +187,12 @@ public class JenkinsScheduler implements Scheduler {
                 if (offerProcessingThread.isAlive()) {
                     LOGGER.info("Stopping Offer Processing Thread.");
                     offerProcessingThreadContinue = false;
-                    offerProcessingThread.join();
-                    LOGGER.info("Offer Processing Thread stopped.");
+                    try {
+                        offerProcessingThread.join();
+                        LOGGER.info("Offer Processing Thread stopped.");
+                    } catch (java.lang.InterruptedException e) {
+                        LOGGER.log(Level.SEVERE, "Caught a InterruptedException", e);
+                    }
                 }
             }
             if (driver != null) {
@@ -651,7 +655,7 @@ public class JenkinsScheduler implements Scheduler {
             return true;
         }
 
-        hudson.model.Queue.Item[] items =  Jenkins.getInstance().getQueue().getItems();
+        hudson.model.Queue.Item[] items =  Jenkins.get().getQueue().getItems();
         if(items != null) {
             for(hudson.model.Queue.Item item: items) {
                 // Check and return if there is an item in jenkins queue for which this MesosCloud can provsion a slave
@@ -791,12 +795,15 @@ public class JenkinsScheduler implements Scheduler {
             getContainerInfoBuilder(offer, request, slaveName, taskBuilder);
         }
 
+        List<OfferID> offerIds = new ArrayList<OfferID>();
+        offerIds.add(offer.getId());
+        
         List<TaskInfo> tasks = new ArrayList<TaskInfo>();
         tasks.add(taskBuilder.build());
 
         Metrics.metricRegistry().counter("mesos.scheduler.operation.launch").inc(tasks.size());
         Filters filters = Filters.newBuilder().setRefuseSeconds(1).build();
-        driver.launchTasks(offer.getId(), tasks, filters);
+        driver.launchTasks(offerIds, tasks, filters);
 
         results.put(taskId, new Result(request.result, new Mesos.JenkinsSlave(offer.getSlaveId()
                 .getValue())));
@@ -805,7 +812,7 @@ public class JenkinsScheduler implements Scheduler {
 
     @NonNull
     private static Jenkins getJenkins() {
-        Jenkins jenkins = Jenkins.getInstance();
+        Jenkins jenkins = Jenkins.get();
         if (jenkins == null) {
             throw new IllegalStateException("Jenkins is null");
         }
@@ -1041,7 +1048,7 @@ public class JenkinsScheduler implements Scheduler {
             LOGGER.fine( String.format( "About to use custom shell: %s " , customShell));
             commandBuilder.setShell(false);
             commandBuilder.setValue(customShell);
-            List args = new ArrayList();
+            List<String> args = new ArrayList<String>();
             args.add(jenkinsCommand2Run);
             commandBuilder.addAllArguments( args );
 

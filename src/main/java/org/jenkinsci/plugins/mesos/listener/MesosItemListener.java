@@ -76,7 +76,7 @@ public class MesosItemListener  extends ItemListener {
             if(list != null && list.size() > 0) {
                 for (MesosSlaveInfo slaveInfo: list) {
                     if (slaveInfo.isDefaultSlave()) {
-                        label = Hudson.getInstance().getLabel(slaveInfo.getLabelString());
+                        label = Hudson.get().getLabel(slaveInfo.getLabelString());
                         break;
                     }
                 }

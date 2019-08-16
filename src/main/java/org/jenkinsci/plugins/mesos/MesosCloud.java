@@ -138,7 +138,7 @@ public class MesosCloud extends Cloud {
 
   @NonNull
   private static Jenkins getJenkins() {
-    Jenkins jenkins = Jenkins.getInstance();
+    Jenkins jenkins = Jenkins.get();
     if (jenkins == null) {
       throw new IllegalStateException("Jenkins is null");
     }
@@ -620,7 +620,7 @@ public class MesosCloud extends Cloud {
   }
 
   public static MesosCloud get() {
-    return Hudson.getInstance().clouds.get(MesosCloud.class);
+    return Hudson.get().clouds.get(MesosCloud.class);
   }
 
   /**
@@ -751,7 +751,7 @@ public void setJenkinsURL(String jenkinsURL) {
     @SuppressWarnings("unused") // Used by stapler.
     @RequirePOST
     public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Item item, @QueryParameter String master) {
-      Jenkins.getInstance().checkPermission(Jenkins.ADMINISTER);
+      Jenkins.get().checkPermission(Jenkins.ADMINISTER);
       List<DomainRequirement> domainRequirements = (master == null) ? Collections.<DomainRequirement>emptyList()
         : URIRequirementBuilder.fromUri(master.trim()).build();
       return new StandardListBoxModel().withEmptySelection().withMatching(
@@ -768,7 +768,7 @@ public void setJenkinsURL(String jenkinsURL) {
         @QueryParameter("master") String master,
         @QueryParameter("nativeLibraryPath") String nativeLibraryPath)
         throws IOException, ServletException {
-      Jenkins.getInstance().checkPermission(Jenkins.ADMINISTER);
+      Jenkins.get().checkPermission(Jenkins.ADMINISTER);
       master = master.trim();
 
       if (master.equals("local")) {
@@ -816,7 +816,7 @@ public void setJenkinsURL(String jenkinsURL) {
     }
 
     public FormValidation doCheckDiskNeeded(@QueryParameter String value) {
-      Jenkins.getInstance().checkPermission(Jenkins.ADMINISTER);
+      Jenkins.get().checkPermission(Jenkins.ADMINISTER);
       boolean isValid = true;
       String errorMessage = "Invalid disk space entered. It should be a positive decimal.";
 
@@ -838,7 +838,7 @@ public void setJenkinsURL(String jenkinsURL) {
 
 
     private FormValidation doCheckCpus(@QueryParameter String value) {
-      Jenkins.getInstance().checkPermission(Jenkins.ADMINISTER);
+      Jenkins.get().checkPermission(Jenkins.ADMINISTER);
       boolean valid = true;
       String errorMessage = "Invalid CPUs value, it should be a positive decimal.";
 
@@ -857,7 +857,7 @@ public void setJenkinsURL(String jenkinsURL) {
     }
 
     public FormValidation doCheckRemoteFSRoot(@QueryParameter String value) {
-      Jenkins.getInstance().checkPermission(Jenkins.ADMINISTER);
+      Jenkins.get().checkPermission(Jenkins.ADMINISTER);
       String errorMessage = "Invalid Remote FS Root - should be non-empty. It will be defaulted to \"jenkins\".";
 
       return StringUtils.isNotBlank(value) ? FormValidation.ok() : FormValidation.error(errorMessage);

@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.26</version>
+    <version>3.48</version>
     <relativePath />
   </parent>
 
@@ -92,7 +92,7 @@
   </pluginRepositories>
 
   <properties>
-    <jenkins.version>2.138.2</jenkins.version>
+    <jenkins.version>2.186</jenkins.version>
     <java.level>8</java.level>
     <findbugs.failOnError>false</findbugs.failOnError>
     <mesos.version>1.0.0</mesos.version>
@@ -164,7 +164,7 @@
       <dependency>
           <groupId>org.jenkins-ci.plugins</groupId>
           <artifactId>metrics</artifactId>
-          <version>3.1.2.6</version>
+          <version>4.0.2.5</version>
           <optional>true</optional>
       </dependency>
   </dependencies>
@@ -179,6 +179,20 @@
   </dependencyManagement>
 
   <build>
+      <pluginManagement>
+          <plugins>
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-compiler-plugin</artifactId>
+                  <configuration>
+                      <compilerArgs>
+                          <arg>-Xlint:deprecation</arg>
+                          <arg>-Xlint:unchecked</arg>
+                      </compilerArgs>
+                  </configuration>
+              </plugin>
+          </plugins>
+      </pluginManagement>
       <plugins>
           <plugin>
               <groupId>org.jenkins-ci.tools</groupId>

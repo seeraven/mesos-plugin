@@ -2,6 +2,7 @@ package org.jenkinsci.plugins.mesos;
 
 import java.io.IOException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
@@ -48,6 +49,9 @@ import jenkins.model.Jenkins;
 @Extension
 public class MesosCleanupThread extends AsyncPeriodicWork {
 
+    /** Since logger is deprecated, use our own logger here. */
+    protected Logger internalLogger = Logger.getLogger(getClass().getName());
+  
     public MesosCleanupThread() {
         super("Mesos pending deletion slave cleanup");
     }
@@ -67,7 +71,7 @@ public class MesosCleanupThread extends AsyncPeriodicWork {
 
     @NonNull
     private static Jenkins getJenkins() {
-        Jenkins jenkins = Jenkins.getInstance();
+        Jenkins jenkins = Jenkins.get();
         if (jenkins == null) {
             throw new IllegalStateException("Jenkins is null");
         }
@@ -87,28 +91,28 @@ public class MesosCleanupThread extends AsyncPeriodicWork {
                 if (mesosSlave != null && mesosSlave.isPendingDelete()) {
                     final MesosComputer comp = (MesosComputer) c;
                     computersToDeleteBuilder.add(comp);
-                    logger.log(Level.INFO, "Marked " + comp.getName() + " for deletion");
+                    internalLogger.log(Level.INFO, "Marked " + comp.getName() + " for deletion");
                     ListenableFuture<?> f = executor.submit(new Runnable() {
                         public void run() {
-                            logger.log(Level.INFO, "Deleting pending node " + comp.getName());
+                            internalLogger.log(Level.INFO, "Deleting pending node " + comp.getName());
                             try {
                                 MesosSlave node = comp.getNode();
                                 if (node != null) {
                                     node.terminate();
                                 }
                             } catch (RuntimeException e) {
-                                logger.log(Level.WARNING, "Failed to disconnect and delete " + comp.getName() + ": " + e.getMessage());
+                                internalLogger.log(Level.WARNING, "Failed to disconnect and delete " + comp.getName() + ": " + e.getMessage());
                                 throw e;
                             }
                         }
                     });
                     deletedNodesBuilder.add(f);
                 } else {
-                    logger.log(Level.FINE, c.getName() + " with slave " + mesosSlave +
-                            " is not pending deletion or the slave is null");
+                    internalLogger.log(Level.FINE, c.getName() + " with slave " + mesosSlave +
+                                       " is not pending deletion or the slave is null");
                 }
             } else {
-                logger.log(Level.FINER, c.getName() + " is not a mesos computer, it is a " + c.getClass().getName());
+                internalLogger.log(Level.FINER, c.getName() + " is not a mesos computer, it is a " + c.getClass().getName());
             }
         }
 
@@ -118,9 +122,9 @@ public class MesosCleanupThread extends AsyncPeriodicWork {
             try {
                 c.deleteSlave();
             } catch (IOException e) {
-                logger.log(Level.WARNING, "Failed to disconnect and delete " + c.getName() + ": " + e.getMessage());
+                internalLogger.log(Level.WARNING, "Failed to disconnect and delete " + c.getName() + ": " + e.getMessage());
             } catch (InterruptedException e) {
-                logger.log(Level.WARNING, "Failed to disconnect and delete " + c.getName() + ": " + e.getMessage());
+                internalLogger.log(Level.WARNING, "Failed to disconnect and delete " + c.getName() + ": " + e.getMessage());
             }
 
         }

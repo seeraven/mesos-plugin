@@ -52,6 +52,7 @@ public class JenkinsSchedulerTest {
             Protos.FrameworkID.newBuilder().setValue("test-framework-id").build();
 
 
+    @SuppressWarnings("deprecation")
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -63,6 +64,7 @@ public class JenkinsSchedulerTest {
         when(jenkins.isUseSecurity()).thenReturn(false);
         PowerMockito.mockStatic(Jenkins.class);
         Mockito.when(Jenkins.getInstance()).thenReturn(jenkins);
+        Mockito.when(Jenkins.get()).thenReturn(jenkins);
 
         jenkinsScheduler = new JenkinsScheduler("jenkinsMaster", mesosCloud, false);
 
@@ -237,6 +239,9 @@ public class JenkinsSchedulerTest {
         ArrayList<Protos.Offer> offers = new ArrayList<Protos.Offer>();
         offers.add(matchingOffer);
 
+        List<Protos.OfferID> offerIds = new ArrayList<Protos.OfferID>();
+        offerIds.add(matchingOffer.getId());
+
         Mesos.SlaveRequest request = mockSlaveRequest(false, false, null);
         jenkinsScheduler.requestJenkinsSlave(request, null);
 
@@ -256,8 +261,8 @@ public class JenkinsSchedulerTest {
 
         jenkinsScheduler.resourceOffers(driver, offers);
 
-        Mockito.verify(driver, never()).declineOffer(matchingOffer.getId());
-        Mockito.verify(driver).launchTasks(eq(matchingOffer.getId()), anyListOf(Protos.TaskInfo.class), eq(Protos.Filters.newBuilder().setRefuseSeconds(1).build()));
+        Mockito.verify(driver, never()).declineOffer(matchingOffer.getId());        
+        Mockito.verify(driver).launchTasks(eq(offerIds), anyListOf(Protos.TaskInfo.class), eq(Protos.Filters.newBuilder().setRefuseSeconds(1).build()));
         assertEquals(0, jenkinsScheduler.getUnmatchedLabels().size());
     }
 
@@ -271,6 +276,9 @@ public class JenkinsSchedulerTest {
         Protos.Offer matchingOffer = createOfferWithUnavailability(startDate, endDate);
         ArrayList<Protos.Offer> offers = new ArrayList<Protos.Offer>();
         offers.add(matchingOffer);
+
+        List<Protos.OfferID> offerIds = new ArrayList<Protos.OfferID>();
+        offerIds.add(matchingOffer.getId());
 
         Mesos.SlaveRequest request = mockSlaveRequest(false, false, null);
         jenkinsScheduler.requestJenkinsSlave(request, null);
@@ -294,7 +302,7 @@ public class JenkinsSchedulerTest {
 
         // verify it
         Mockito.verify(driver, never()).declineOffer(matchingOffer.getId());
-        Mockito.verify(driver).launchTasks(eq(matchingOffer.getId()), anyListOf(Protos.TaskInfo.class), eq(Protos.Filters.newBuilder().setRefuseSeconds(1).build()));
+        Mockito.verify(driver).launchTasks(eq(offerIds), anyListOf(Protos.TaskInfo.class), eq(Protos.Filters.newBuilder().setRefuseSeconds(1).build()));
         assertEquals(0, jenkinsScheduler.getUnmatchedLabels().size());
     }
 
@@ -501,7 +509,7 @@ public class JenkinsSchedulerTest {
                 "remoteFSRoot",     // remoteFSRoot,
                 "2",                // idleTerminationMinutes,
                 (String)null,       // slaveAttributes,
-                true,               // loginShell,
+                false,              // loginShell,
                 null,               // jvmArgs,
                 null,               // jnlpArgs,
                 null,               // defaultSlave,

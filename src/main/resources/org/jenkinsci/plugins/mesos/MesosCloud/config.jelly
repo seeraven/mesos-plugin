@@ -1,11 +1,11 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
     <f:entry title="Mesos native library path" field="nativeLibraryPath">
-        <f:textbox field="nativeLibraryPath" clazz="required"/>
+        <f:textbox default="/usr/local/lib/libmesos.so" field="nativeLibraryPath" clazz="required"/>
     </f:entry>
 
     <f:entry title="${%Mesos Master url}" field="master">
-        <f:textbox clazz="required"/>
+        <f:textbox default="zk://localhost:2181/mesos" clazz="required"/>
     </f:entry>
 
     <f:entry title="${%Description}" field="description">
@@ -29,11 +29,11 @@
     </f:entry>
 
     <f:entry title="${%Jenkins URL }" field="jenkinsURL">
-        <f:textbox/>
+        <f:textbox default="http://127.0.0.1:8080/jenkins/"/>
     </f:entry>
 
     <f:entry title="${%Cloud ID}" field ="cloudID">
- 	 <f:textbox readonly="readonly" />
+        <f:textbox readonly="readonly" />
     </f:entry>
 
     <f:advanced>
@@ -52,9 +52,9 @@
         </f:entry>
 
         <f:entry title="${%Remote FS Root is NFS mount}" field="nfsRemoteFSRoot" description="${%Enable this option if Remote FS Root configured in SlaveInfo is a shared storage like NFS.}">
-            <f:radio name="nfsRemoteFSRoot" value="true" checked="${instance == null || instance.nfsRemoteFSRoot == true}" id="nfsRemoteFSRoot.true"/>
+            <f:radio name="nfsRemoteFSRoot" value="true" checked="${instance.nfsRemoteFSRoot == true}" id="nfsRemoteFSRoot.true"/>
             <st:nbsp/>${%Yes}
-            <f:radio name="nfsRemoteFSRoot" value="false" checked="${instance.nfsRemoteFSRoot == false}" id="nfsRemoteFSRoot.false"/>
+            <f:radio name="nfsRemoteFSRoot" value="false" checked="${instance == null || instance.nfsRemoteFSRoot == false}" id="nfsRemoteFSRoot.false"/>
             <st:nbsp/>${%No}
         </f:entry>
 

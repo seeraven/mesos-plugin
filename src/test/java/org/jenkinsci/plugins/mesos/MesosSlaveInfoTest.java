@@ -54,7 +54,7 @@ public class MesosSlaveInfoTest {
         });
 
         PowerMockito.mockStatic(Jenkins.class);
-        Mockito.when(Jenkins.getInstance()).thenReturn(jenkins);
+        Mockito.when(Jenkins.get()).thenReturn(jenkins);
     }
 
 

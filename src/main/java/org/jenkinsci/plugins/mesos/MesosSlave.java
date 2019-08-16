@@ -51,14 +51,15 @@ public class MesosSlave extends Slave {
 
   public MesosSlave(MesosCloud cloud, String name, int numExecutors, MesosSlaveInfo slaveInfo, Timer.Context provisioningContext) throws IOException, FormException {
     super(name,
-          slaveInfo.getLabelString(), // node description.
           StringUtils.isBlank(slaveInfo.getRemoteFSRoot()) ? "jenkins" : slaveInfo.getRemoteFSRoot().trim(),   // remoteFS.
-          "" + numExecutors,
-          slaveInfo.getMode(),
-          slaveInfo.getLabelString(), // Label.
-          new MesosComputerLauncher(cloud, name),
-          new MesosRetentionStrategy(slaveInfo.getIdleTerminationMinutes()),
-          slaveInfo.getNodeProperties());
+          new MesosComputerLauncher(cloud, name));
+    this.setNodeDescription(slaveInfo.getLabelString());
+    this.setNumExecutors(numExecutors);
+    this.setMode(slaveInfo.getMode());
+    this.setLabelString(slaveInfo.getLabelString());
+    this.setRetentionStrategy(new MesosRetentionStrategy(slaveInfo.getIdleTerminationMinutes()));
+    this.setNodeProperties(slaveInfo.getNodeProperties());
+
     this.cloud = cloud;
     this.cloudName = cloud.getDisplayName();
     this.slaveInfo = slaveInfo;
@@ -79,7 +80,7 @@ public class MesosSlave extends Slave {
   }
 
   private Jenkins getJenkins() {
-    Jenkins jenkins = Jenkins.getInstance();
+    Jenkins jenkins = Jenkins.get();
     if (jenkins == null) {
       throw new IllegalStateException("Jenkins is null");
     }
@@ -119,7 +120,7 @@ public class MesosSlave extends Slave {
     LOGGER.info("Terminating slave " + getNodeName());
     try {
       // Remove the node from hudson.
-      Hudson.getInstance().removeNode(this);
+      Hudson.get().removeNode(this);
 
       ComputerLauncher launcher = getLauncher();
 

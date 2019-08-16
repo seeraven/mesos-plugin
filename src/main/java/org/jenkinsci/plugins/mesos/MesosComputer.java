@@ -57,7 +57,7 @@ public class MesosComputer extends SlaveComputer {
 
   @Override
   @WebMethod(name="slave-agent.jnlp")
-  public HttpResponse doSlaveAgentJnlp(StaplerRequest req, StaplerResponse res) throws IOException, ServletException {
+  public HttpResponse doSlaveAgentJnlp(StaplerRequest req, StaplerResponse res) {
 	  return new EncryptedSlaveAgentJnlpFile(this, "mesos-slave-agent.jnlp.jelly", getName(), CONNECT);
   }
 
@@ -83,7 +83,7 @@ public class MesosComputer extends SlaveComputer {
 
     @NonNull
     private static Jenkins getJenkins() {
-        Jenkins jenkins = Jenkins.getInstance();
+        Jenkins jenkins = Jenkins.get();
         if (jenkins == null) {
             throw new IllegalStateException("Jenkins is null");
         }

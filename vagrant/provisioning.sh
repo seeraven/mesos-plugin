@@ -37,6 +37,7 @@ printMsg "Distribution $DISTRO found. Codename: $CODENAME"
 # -----------------------------------------------------------------------------
 printMsg "Copy apt overlay..."
 execCmd cp -r /vagrant/vagrant/apt/* /etc/apt/
+execCmd cp -a /vagrant/vagrant/apt/sources.list /etc/cloud/templates/sources.list.ubuntu.tmpl
 
 
 # -----------------------------------------------------------------------------
@@ -213,8 +214,8 @@ echo "NOTE: Configure the plugin as follows:"
 echo "From local host go to http://localhost:8090/jenkins/configure"
 echo "Mesos native library path: /usr/local/lib/libmesos.so"
 echo "Mesos Master [hostname:port]: zk://localhost:2181/mesos"
-echo "Mesos Master WebIfc:  http://localhost:8050/mesos"
-echo "Mesos Slave WebIfc:   http://localhost:8051/mesos"
+echo "Mesos Master WebIfc:  http://localhost:8050/"
+echo "Mesos Slave WebIfc:   http://localhost:8051/"
 echo "Configure the JenkinsURL of the Mesos Slaves as:"
 echo " http://127.0.0.1:8080/jenkins"
 echo "****************************************************************"
